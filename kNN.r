@@ -13,7 +13,7 @@ sortObjectsByDist <- function(xl, z, metricFunction = euclideanDistance)
   distances <- matrix(NA, l, 2)
   for (i in 1:l)
   {
-    distances[i, ] <- c(i, metricFunction(xl[i, 1:n], z))
+	distances[i, ] <- c(i, metricFunction(xl[i, 1:n], z))
   }
   ## Сортируем
   orderedXl <- xl[order(distances[, 2]), ]
@@ -21,27 +21,54 @@ sortObjectsByDist <- function(xl, z, metricFunction = euclideanDistance)
 }
 
 ## Применяем метод kNN
-kNN <- function(xl, z, k)
+kNN <- function(xl, z, k = c(6))
 {
   ## Сортируем выборку согласно классифицируемого	объекта
   orderedXl <- sortObjectsByDist(xl, z)
   n <- dim(orderedXl)[2] - 1
   ## Получаем классы первых k соседей
-  classes <- orderedXl[1:k, n + 1]
-  ## Составляем таблицу(+считает общее число элементов каждого "типа") встречаемости каждого класса
-  counts <- table(classes)
-  ## Находим класс, который чаще всего встречается среди первых k соседей
-  class <- names(which.max(counts))
+  classes <- orderedXl[1:k[length(k)], n + 1]
+
+  class <- c(seq(length(k)))
+
+  for (i in seq(length(k)))
+  {
+	## Составляем таблицу(+считает общее число элементов каждого "типа") встречаемости каждого класса
+	counts <- table(orderedXl[1:i,n+1])
+	## Находим класс, который чаще всего встречается среди первых k соседей
+	class[i] <- names(which.max(counts))
+  }
+
   return (class)
 }
 
-colors <- c("setosa" = "red", "versicolor" = "green3", "virginica" = "blue")
-plot(iris[, 3:4], pch = 21, bg = colors[iris$Species], col = colors[iris$Species], asp = 1)
+looCV_kNN <- function(dat, algo) {
+  l <- length(dat[[1]])
+  correct <- rep(0, length(l))
 
-##set the 
-z <- c(2.7,1)
-xl <- iris[,3:5]
+  for (i in seq(l)) {
+	print(i)
+	trainData <- dat[-i, ]
+	control <- dat[i, ]
 
-##kNN
-class <- kNN(xl, z, k=6)
-points(z[1], z[2], pch = 22, bg = colors[class], asp = 1)
+	res <- algo(trainData, control[1:2], seq(l))
+	correct <- correct + (res != control$Species)
+  }
+
+  res <- (correct/l)
+  return (res)
+}
+
+demo <- function()
+{
+  dat <- iris[,3:5]
+	res <- looCV_kNN(dat,kNN)
+	
+	dataRes <- as.data.frame(res)
+	
+	plot(data.frame("k"=seq(length(dat[[1]])), "LOO(k)"=res), type="l")
+	
+	minK <- which.min(dataRes$res)
+	points(minK,dataRes$res[minK],type="p",pch = 16, col = "green",bg = "green")
+}
+demo()
