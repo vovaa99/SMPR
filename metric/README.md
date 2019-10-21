@@ -25,7 +25,15 @@ kNN <- function(xl, z, k = c(6))
 	counts <- table(orderedXl[1:i,n+1])
 	class[i] <- names(which.max(counts))
   }
-1
+  
   return (class)
 }
 ```
+
+### По критерию скользящего контроля LOO оптимальное k = 6:
+
+![](./alg_NN/LOO_KNN.png)
+
+### Карта классификации kNN
+
+![](./alg_NN/classificMap_KNN.png)
