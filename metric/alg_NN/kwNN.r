@@ -68,26 +68,30 @@ demo <- function()
   
   dat <- iris[,3:5]
   
-  res<-matrix(0,nrow=10,ncol=length(kdiap))
+  res<-matrix(0,nrow=10,ncol=length(dat[[1]]))
   big_res<-rep(0,length(kqdiap))
-  
+  small_res<-matrix(0,nrow=10,ncol=length(kdiap))
   for(q in seq(0.1, 1, length.out = 10) )
   {
     print(q)
     qq<-looCV_kwNN(dat, kwNN, q)
-    res[q*10,] <- qq[kdiap]
+    res[q*10,] <- qq
+  }
+  
+  
+  for(q in seq(0.1, 1, length.out = 10) )
+  {
+    small_res[q*10,seq(length(kdiap))] <- res[q*10,kdiap]
   }
   
   for(i in seq(length(kdiap)))
   {
-     print(i)
-     big_res[((i)*10-9):((i)*10)] <- res[,i]
+    big_res[((i)*10-9):((i)*10)] <- small_res[,i]
   }
   
-  dataRes <- as.data.frame(big_res)
+  dataRes <- as.data.frame(res)
   plot(data.frame("k"=kqdiap, "LOO(k)"=big_res), type="l")
   minK <- which.min(dataRes$res)
   points(minK,dataRes$res[minK],type="p",pch = 16, col = "green",bg = "green")
-  
 }
 demo()
