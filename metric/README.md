@@ -32,7 +32,7 @@ kNN <- function(xl, z, k = c(6))
 
 ### По критерию скользящего контроля LOO оптимальное k = 6:
 
-![](./alg_NN/LOO_KNN.png)
+![](./alg_NN/_loo_KNN.png)
 
 ### Карта классификации kNN
 
