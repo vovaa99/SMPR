@@ -47,12 +47,11 @@ looCV_kNN <- function(dat, algo) {
   correct <- rep(0, length(l))
 
   for (i in seq(l)) {
-	print(i)
-	trainData <- dat[-i, ]
-	control <- dat[i, ]
+		trainData <- dat[-i, ]
+	  control <- dat[i, ]
 
-	res <- algo(trainData, control[1:2], seq(l))
-	correct <- correct + (res != control$Species)
+	  res <- algo(trainData, control[1:2], seq(l))
+	  correct <- correct + (res != control$Species)
   }
 
   res <- (correct/l)
