@@ -81,3 +81,53 @@ kwNN <- function(xl, z, k, q)
 
 ![](./alg_NN/classificMap_kwNN.png)
 
+## [Метод парзеновского окна](./alg_parsen/)
+
+**Метод парзеновского окна** — метод классификации, основанный на непараметрическом восстановлении плотности по имеющейся выборке. В основе подхода лежит идея о том, что плотность выше в тех точках, рядом с которыми находится большое количество объектов выборки. В данном алгоритме выбирается следующий способ задать веса соседям: определить ***w(i)***, а не от ранга соседа.
+
+***Формула Парзеновского окна выглядит следующим образом:***
+![parsenF](./alg_parsen/parsen_formula.png) 
+где ***K(x)*** -- невозрастающая на [0; ∞) функция ядра,
+а ***h*** -- параметр (ширина окна).
+Если плотность объектов в пространстве неоднородна, то имеет смысл использовать переменную ширину окна, тогда формула приобретает следующий вид:
+![parsenF](./alg_parsen/parsen_formula_2.png) 
+
+Реализация алгоритма на языке **R**:
+```
+parsen <- function(dat, z, h=c(0.35), kerF = RectKer) {
+  n <- dim(dat)[2]
+  m <- dim(dat)[1]
+  datWithDist <- DistanceToDataFrame(dat, z)
+  
+  classifiedObjects <- rep("", length(h))
+  
+  for(i in seq(length(h)))
+  {
+    classes <- rep(0, length(names(table(dat[,n]))))
+    names(classes) <- names(table(dat[,n]))
+    
+    for(j in 1:m){
+      y <- datWithDist[j, n]
+      w <- kerF(datWithDist[j,4]/h[i])
+      classes[y] <- classes[y] + w
+    }
+    if(sum(classes) > 0) {
+      class <- names(which.max(classes))
+    } else {
+      class <- "unknown"
+    }
+    classifiedObjects[i] = class
+  }
+  return(classifiedObjects)
+}
+```
+
+**Используя различные ядра найдем оптимальные значения параметра h, построим график критерия скользящего контроля LOO, построим карту классификации**
+
+Ядро | Оптимальное *h* и значение LOO | График LOO(h)
+:---:|:---------:|:------------------:
+Прямоугольное | h=0.35 LOO=0.04 | ![](./alg_parsen/RectKerLOO.svg) ![](./alg_parsen/PlotMap_RectKer.svg)
+Треугольное | h=0.35 LOO=0.04 | ![](./alg_parsen/TrianKerLOO.svg) ![](./alg_parsen/PlotMap_TrianKer.svg)
+Квартическое | h=0.35 LOO=0.04 | ![](./alg_parsen/QuadKerLOO.svg) ![](./alg_parsen/PlotMap_QuadKer.svg)
+Епанечникова | h=0.35 LOO=0.04 | ![](EpanKerLOO.svg) ![](./alg_parsen/PlotMap_EpanKer.svg)
+Гауссовское | h=0.1 LOO=0.04 | ![](./alg_parsen/GausKerLOO.svg) ![](./alg_parsen/PlotMap_GausKer.svg)
