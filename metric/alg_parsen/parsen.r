@@ -100,6 +100,7 @@ PlotMapParsen <- function(h = 0.1, kerF = EpanKer, label="ядром Епане�
       FindParsen(i,j,h,kerF)
     }
   }
+  dev.off()
 }
 
 demo <- function(){
