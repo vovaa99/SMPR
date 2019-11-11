@@ -88,9 +88,10 @@ kwNN <- function(xl, z, k, q)
 ***Пример:***
 
 Классификация объекта A(2, 0.4) при k=7:
-|kNN | kWNN|
-|:------------:|:----------------------:|
-|![kNN](./alg_NN/knn_diff.png)|![kNN](./alg_NN/kwnn_diff.png)|
+
+kNN | kWNN
+:------------:|:----------------------:
+![kNN](./alg_NN/knn_diff.png)|![kNN](./alg_NN/kwnn_diff.png)
 
 
 
