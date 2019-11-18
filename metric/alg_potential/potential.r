@@ -89,7 +89,7 @@ calcL <- function(dat, kernel, h, maxErr = 10) {
 PotentialCircles <- function(dat, l, h) {
   # plot source data it
   colors <- c("setosa" = "red", "versicolor" = "green", "virginica" = "blue")
-  plot(dat[1:2], pch = 21, col = colors[dat$Species], bg = colors[dat$Species], main="Карта классификации")
+  plot(dat[1:2], pch = 21, col = colors[dat$Species], bg = colors[dat$Species], main="Изображение потенциалов")
 
   
   
@@ -136,6 +136,5 @@ res <- calcL(dat[3:5], GausKer, h, maxErr = 5);
 
 print(res)
 PotentialCircles(dat[3:5], res, h)
-readline(prompt="Enter to continue")
 PlotMap(dat[3:5], res, h)
   

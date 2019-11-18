@@ -185,3 +185,7 @@ potfunc <- function(dat, p, kernel, l, h) {
   return (names(which.max(classes)))
 }
 ```
+
+Ядро | Изображение потенциалов| Карта классификации
+:---:|:---------:|:------------------:
+Гауссовское | ![](./alg_potential/PotentialCirclesGaus.jpg) | ![](./alg_potential/PlotMapGaus.jpg)
