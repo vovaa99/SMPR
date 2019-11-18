@@ -107,7 +107,7 @@ kNN | kWNN
 ![parsenF](./alg_parsen/parsen_formula_2.png) 
 
 Реализация алгоритма на языке **R**:
-```
+```r
 parsen <- function(dat, z, h=c(0.35), kerF = RectKer) {
   n <- dim(dat)[2]
   m <- dim(dat)[1]
@@ -160,3 +160,28 @@ parsen <- function(dat, z, h=c(0.35), kerF = RectKer) {
 ![](./alg_potential/potential_5.JPG) — параметр, задающий «ширину потенциала» объекта ![](./alg_potential/potential_6.JPG). Вводится по аналогии с шириной окна в методе парзеновского окна.
 
 ![](./alg_potential/potential_7.JPG) — параметр, задающий «заряд», то есть степень «важности» объекта ![](./alg_potential/potential_8.JPG) при классификации.
+
+
+Реализация алгоритма на языке **R**:
+```r
+potfunc <- function(dat, p, kernel, l, h) {
+  datLength <- dim(dat)[1]
+  classCount <- dim(table(dat$Species))
+  
+  classes <- rep(0, classCount)
+  names(classes) <- levels(dat$Species)
+  
+  for (i in seq(datLength)) {
+    e <- dat[i,]
+    distance <- euclideanDistance(p, e[1:2])
+    
+    weight <- kernel(distance / h[i]) * l[i]
+    classes[e$Species] <- classes[e$Species] + weight
+  }
+  
+  if (max(classes) == 0) {
+    return ("")
+  }
+  return (names(which.max(classes)))
+}
+```

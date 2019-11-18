@@ -115,4 +115,3 @@ demo()
 
 #looCV_parsen(iris[,3:5],seq(0.1,4,0.5))
 #PlotMapParsen(0.35, RectKer, "прямоугольным ядром")
-
