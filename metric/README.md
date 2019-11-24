@@ -189,3 +189,4 @@ potfunc <- function(dat, p, kernel, l, h) {
 Ядро | Изображение потенциалов| Карта классификации
 :---:|:---------:|:------------------:
 Гауссовское | ![](./alg_potential/PotentialCirclesGaus.jpg) | ![](./alg_potential/PlotMapGaus.jpg)
+Епанечникова | ![](./alg_potential/PotentialCirclesEpan.jpg) | ![](./alg_potential/PlotMapEpan.jpg)
