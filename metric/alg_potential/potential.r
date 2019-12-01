@@ -1,4 +1,6 @@
 library("plotrix")
+install.packages("gpuR")
+
 # Функции ядер
 RectKer <- function(r) (abs(r) <= 1) * 0.5
 TriaKer <- function(r) (abs(r) <= 1) * (1 - abs(r))
@@ -51,10 +53,8 @@ errVal <- function(dat, kernel, l, h) {
 }
 
 # calculate l
-calcL <- function(dat, kernel, h, maxErr = 10) {
+calcL <- function(dat, kernel, h, maxErr = 10,l = rep(0, datLength)) {
   datLength <- dim(dat)[1]
-  
-  l <- rep(0, datLength)
   old_l <- l
   i <- 1
   err_cnt_new <- errVal(dat, kernel, l, h)
@@ -111,7 +111,7 @@ PotentialCircles <- function(dat, l, h) {
 }
 
 # example of usage
-PlotMap <- function(dat, l, h) {
+PlotMap <- function(dat, l, h, kerF = GausKer) {
   # plot source data
   colors <- c("setosa" = "red", "versicolor" = "green", "virginica" = "blue")
   plot(dat[1:2], pch = 21, col = colors[dat$Species], bg = colors[dat$Species], main="Карта классификации")
@@ -119,7 +119,7 @@ PlotMap <- function(dat, l, h) {
   # classification map
   for (i in seq(1.0, 7.0, 0.1)) {
     for (j in seq(0.1, 2.5, 0.1)) {
-      cl <- potfunc(dat, c(i, j), GausKer, l, h)
+      cl <- potfunc(dat, c(i, j), kerF, l, h)
       points(i, j, pch = 21, col = colors[cl])
     }
   }
@@ -132,9 +132,10 @@ dat = iris
 datLength <- dim(dat)[1]
 h <- c(rep(1, datLength/3), rep(0.5, (datLength/3)), rep(0.5, (datLength/3)))
 
-res <- calcL(dat[3:5], GausKer, h, maxErr = 5);
-
+kerF <- RectKer
+res <- calcL(dat[3:5], kerF, h, maxErr = 5);
 print(res)
+print(errVal(dat[3:5],kerF,res,h))
 PotentialCircles(dat[3:5], res, h)
-PlotMap(dat[3:5], res, h)
+PlotMap(dat[3:5], res, h, kerF)
   
