@@ -74,6 +74,23 @@ line <- function(m,A)
 ### Реализация на языке R
 ```r
 
+getPyj <- function(x, M, D){
+  return( (1/(D*sqrt(2*pi))) * exp(-1 * ((x - M)^2)/(2*D^2)) )
+}
+
+naiveBayes <- function(x, M, D, Prob, Prior) {
+  res <- log(Prob * Prior)
+  l <- length(x)
+  
+  for (i in seq(l)) {
+    p <- getPyj(x[i], M[i], D[i])
+    res <- res + log(p)
+  }
+  
+  return(res)
+}
+
 ```
 
 ### Пример классификации
+![](./naive_baes/naivePlotMap.png)

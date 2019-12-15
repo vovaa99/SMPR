@@ -1,81 +1,59 @@
-naiv <- function(x, mu, sigma, lamda, P){
-  n <- 2
-  res <- log(lamda*P)
-  for(i in 1 : n){
-    pyj <- getPyj(sigma[i], x[i], mu[i])
-    res <- res + log(pyj)
+library("MASS")
+
+getPyj <- function(x, M, D){
+  return( (1/(D*sqrt(2*pi))) * exp(-1 * ((x - M)^2)/(2*D^2)) )
+}
+
+naiveBayes <- function(x, M, D, Prob, Prior) {
+  res <- log(Prob * Prior)
+  l <- length(x)
+  
+  for (i in seq(l)) {
+    p <- getPyj(x[i], M[i], D[i])
+    res <- res + log(p)
   }
+  
   return(res)
 }
 
-getPyj <- function(disp, x, mu){
-  return((1/(disp*sqrt(2*pi))) * exp(-1 * ((x - mu)^2)/(2*disp^2)) )
-}
+n <- 300
+sigma1 <- matrix(c(2, 0, 0, 2), 2, 2)
+sigma2 <- matrix(c(1, 0, 0, 1), 2, 2)
 
-get_mu_with_hat <- function(xl){
-  l <- dim(xl)[1] 
-  return(c(sum(xl[,1])/l, sum(xl[,2])/l))
-}
+mu1 <- c(-2,-2)
+mu2 <- c(4,4)
 
-get_sigma_with_hat <- function(xl, mu){
-  l <- dim(xl)[1] 
-  return(c(sum((xl[,1] - mu[1])^2)/l, sum((xl[,2] - mu[2])^2)/l))
-}
+xc1 <- mvrnorm(n=n, mu = mu1, Sigma = sigma1)
+xc2 <- mvrnorm(n=n, mu = mu2, Sigma = sigma2)
 
-quality <- function(xl, muh1, sigma1, muh2, sigma2){
-  l <- dim(xl)[1] 
-  mis <- 0
-  for(i in 1 : l){      
-    class <- 0;
-    if(naiv(xl[i, -3], muh1, sigma1, 1, 0.5) > naiv(xl[i, -3], muh2, sigma2, 1, 0.5)){
-      class <- 1
-    } else {
-      class <- 2
-    }     
-    if(class != xl[i, 3])
-      mis <- mis + 1
+plotxmin <- min(xc1[,1], xc2[,1]) - 1
+plotymin <- min(xc1[,2], xc2[,2]) - 1
+plotxmax <- max(xc1[,1], xc2[,1]) + 1
+plotymax <- max(xc1[,2], xc2[,2]) + 1
+plot(c(), type="n", xlab = "x", ylab = "y", xlim=c(plotxmin, plotxmax), ylim = c(plotymin, plotymax), main="Наивный нормальный байесовский классификатор")
+
+colors <- c("red", "green")
+points(xc1, pch=21, col=colors[1], bg=colors[1])
+points(xc2, pch=21, col=colors[2], bg=colors[2])
+
+
+
+m1 <- c(mean(xc1[,1]),mean(xc1[,2]))
+m2 <- c(mean(xc2[,1]),mean(xc2[,2]))
+
+d1 <- c(var(xc1[,1]),var(xc1[,2]))
+d2 <- c(var(xc2[,1]),var(xc2[,2]))
+
+l <- max(plotxmax - plotxmin, plotymax - plotymin)
+x <- seq(plotxmin, plotxmax, l/50)
+y <- seq(plotymin, plotymax, l/50)
+
+for (i in x) {
+  for (j in y) {
+    res1 <- naiveBayes(c(i, j), m1, d1, 1, 1)
+    res2 <- naiveBayes(c(i, j), m2, d2, 1, 1)
+    color <- ifelse(res1 > res2, colors[1], colors[2])
+    
+    points(i, j, pch = 21, col = color)
   }
-  return (mis/l)
 }
-
-main <- function(objectCounter = 500){
-  library(MASS)
-  sigma1 <- matrix(c(2, 0, 0, 2),2,2)
-  sigma2 <- matrix(c(1, 0, 0, 1),2,2)
-  mu1 <- c(0,0)
-  mu2 <- c(4,4)
-  x1 <- mvrnorm(n = objectCounter, mu1, sigma1)
-  x2 <- mvrnorm(n = objectCounter, mu2, sigma2)
-  
-  xy1 <- cbind(x1,1) 
-  xy2 <- cbind(x2,2) 
-  
-  xl <- rbind(xy1,xy2)
-  
-  colors <- c("black", "purple")
-  plot(xl[,1],xl[,2], pch = 21,main = "Наивный байесовский классификатор", xlab = 'призна 1', ylab= 'признак 2', col = colors[xl[,3]], asp = 1, bg=colors[xl[,3]])
-  
-  colors <- c("black", "purple")
-  muh1 <- get_mu_with_hat(x1)
-  muh2 <- get_mu_with_hat(x2)         
-  sigma1 <- get_sigma_with_hat(x1, muh1)
-  sigma2 <- get_sigma_with_hat(x2, muh2)
-  
-  x1 <- -15;
-  while(x1 < 20){
-    x2 <- -8;
-    while(x2 < 13){          
-      class <- 0;
-      if(naiv(c(x1,x2), muh1, sigma1, 1, 0.5) > naiv(c(x1,x2), muh2, sigma2, 1, 0.5)){
-        class <- 1
-      } else {
-        class <- 2
-      }
-      #points(x1, x2, pch = 21, col=colors[class], asp = 1)
-      x2 <- x2 + 0.2
-    }
-    x1 <- x1 + 0.2
-  }
-  print(quality(xl, muh1, sigma1, muh2, sigma2))
-}
-main()
