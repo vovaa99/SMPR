@@ -56,7 +56,7 @@ line <- function(m,A)
 }
 ```
 
-## [Наивный байесовский классификатор](./naive_baes/)
+## [Наивный нормальный байесовский классификатор](./naive_baes/)
 Будем полагать, что все объекы описываются **n** независимыми числовыми признаками **f<sub>j</sub>**.
 Признаки **f<sub>j</sub>**: **X** → **D<sub>j</sub>**  независимые случайные величины
 с плотностями распределения, ![](./naive_baes/density.jpg), 
@@ -94,3 +94,67 @@ naiveBayes <- function(x, M, D, Prob, Prior) {
 
 ### Пример классификации
 ![](./naive_baes/naivePlotMap.png)
+
+
+## [Подстановочный	алгоритм (plug-in)](./plug_in/)
+
+Постановочный алгоритм
+Если мы оценим параметры функции правдоподобия ![](./plug_in/mu.png) и ![](./plug_in/sum.png) по частям обучающей выборки ![](./plug_in/xyl.png) для каждого класса ![](./plug_in/yinY.png), а затем эти выборочные оценки подставим в оптимальный байесовский классификатор, то получим подстановочный алгоритм **plug-in**. 
+
+Это байесовский нормальный классификатор оценки параметров гауссовской плотности, которого имеют вид:
+![](./plug_in/density.png)
+
+### Реализация на языке R
+```r
+getFunc <- function(sigma1, mu1, sigma2, mu2) {
+  d1 <- det(sigma1)
+  d2 <- det(sigma2)
+  invs1 <- solve(sigma1)
+  invs2 <- solve(sigma2)
+  
+  a <- invs1 - invs2
+  b <- invs1 %*% t(mu1) - invs2 %*% t(mu2)
+  
+  A <- a[1,1] # x^2
+  B <- a[2,2] # y^2
+  C <- 2 * a[1, 2] # xy
+  D <- -2 * b[1, 1] # x
+  E <- -2 * b[2, 1] # y
+  G <- c(mu1 %*% invs1 %*% t(mu1) - mu2 %*% invs2 %*% t(mu2)) + log(abs(det(sigma1))) - log(abs(det(sigma2)))
+  
+  func <- function(x, y) {
+    x^2 * A + y^2 * B + x*y*C + x*D + y*E + G
+  }
+  
+  return(func)
+}
+mu1 <- matrix(c(mean(xy1[,1]),mean(xy1[,2])),1,2)
+mu2 <- matrix(c(mean(xy2[,1]),mean(xy2[,2])),1,2)
+
+sigma1 <- var(xy1)
+sigma2 <- var(xy2)
+
+plug_in_func <- getFunc(sigma1, mu1, sigma2, mu2)
+xy <- c(x,y)
+p <- plug_in_func(xy[1],xy[2])
+if(p<0)
+{
+  points(xy[1],xy[2], col=colors[1])
+}
+if(p>0)
+{
+  points(xy[1],xy[2],pch=21, col=colors[2])
+}
+
+```
+
+### Пример классификации и разделяющей кривой
+
+Cлучай, когда разделяющая кривая является **эллипсом**.
+![](./plug_in/elipsis.png)
+
+Cлучай, когда разделяющей кривой является **парабола**.
+![](./plug_in/parabola.png)
+
+Cлучай, когда разделяющей кривой является **гипербола**.
+![](./plug_in/giperbola.png)
