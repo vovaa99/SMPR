@@ -83,22 +83,49 @@ line <- function(m,A)
 
 ### Реализация на языке R
 ```r
-
 getPyj <- function(x, M, D){
   return( (1/(D*sqrt(2*pi))) * exp(-1 * ((x - M)^2)/(2*D^2)) )
 }
 
-naiveBayes <- function(x, M, D, Prob, Prior) {
-  res <- log(Prob * Prior)
-  l <- length(x)
-  
-  for (i in seq(l)) {
-    p <- getPyj(x[i], M[i], D[i])
-    res <- res + log(p)
+getNaiveBayesFunc <- function(means,vars)
+{
+  n <- dim(means)[1]
+  funcs <- list()
+  Prob <- rep(0.5,n)
+  Prior <- rep(0.5,n)
+  makefunc <- function(i) {
+    force(i)
+    function(X)
+    { 
+      res <- log(Prob[i] * Prior[i])
+      
+      for (j in seq(n)) {
+        p <- getPyj(X[j], means[j,i],vars[j,i])
+        res <- res + log(p)
+      }
+      return(res)
+    }
+  }
+  for(i in seq(n))
+  {
+    funcs[[i]] <- makefunc(i)
   }
   
-  return(res)
+  solvingFunc <- function(X)
+  {
+    results <- vector()
+    for (i in seq(n))
+    {
+      results[i] <- funcs[[i]](X)
+    }
+    #print (results)
+    return(which.max(results))
+  }
+  return(solvingFunc)
 }
+
+bayesSolvingFunc <- getNaiveBayesFunc(means,vars)
+bayesSolvingFunc(X)
 
 ```
 
