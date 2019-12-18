@@ -159,12 +159,20 @@ getFunc <- function(sigma1, mu1, sigma2, mu2) {
   E <- -2 * b[2, 1] # y
   G <- c(mu1 %*% invs1 %*% t(mu1) - mu2 %*% invs2 %*% t(mu2)) + log(abs(det(sigma1))) - log(abs(det(sigma2)))
   
-  func <- function(x, y) {
-    x^2 * A + y^2 * B + x*y*C + x*D + y*E + G
+  func <- function(x) {
+    x[1]^2 * A + x[2]^2 * B + x[1]*x[2]*C + x[1]*D + x[2]*E + G
   }
   
-  return(func)
+  solver <- function(x) {
+    if (func(x) > 0 )
+      return(1)
+    else
+      return(2)
+  }
+  
+  return(solver)
 }
+
 mu1 <- matrix(c(mean(xy1[,1]),mean(xy1[,2])),1,2)
 mu2 <- matrix(c(mean(xy2[,1]),mean(xy2[,2])),1,2)
 
@@ -173,15 +181,7 @@ sigma2 <- var(xy2)
 
 plug_in_func <- getFunc(sigma1, mu1, sigma2, mu2)
 xy <- c(x,y)
-p <- plug_in_func(xy[1],xy[2])
-if(p<0)
-{
-  points(xy[1],xy[2], col=colors[1])
-}
-if(p>0)
-{
-  points(xy[1],xy[2],pch=21, col=colors[2])
-}
+plug_in_func(xy)
 
 ```
 
