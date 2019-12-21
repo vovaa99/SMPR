@@ -4,12 +4,11 @@ getPyj <- function(x, M, D){
   return( (1/(D*sqrt(2*pi))) * exp(-1 * ((x - M)^2)/(2*D^2)) )
 }
 
-getNaiveBayesFunc <- function(means,vars)
+getNaiveBayesFunc <- function(Prob = rep(0.5,n),Prior = rep(0.5,n),means,vars)
 {
   n <- dim(means)[1]
   funcs <- list()
-  Prob <- rep(0.5,n)
-  Prior <- rep(0.5,n)
+  
   makefunc <- function(i) {
     force(i)
     function(X)
