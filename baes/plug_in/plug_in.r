@@ -22,7 +22,7 @@ getCurveFunc <- function(sigma1, mu1, sigma2, mu2) {
   return(func)
 }
 
-getPlugInClassificator <- function(Prob = c(1),Prior = c(1),means,vars)
+getPlugInClassificator <- function(Prob = c(1),Prior = c(2),means,vars)
 {
   n <- dim(means)[1]
   funcs <- list()
@@ -31,14 +31,14 @@ getPlugInClassificator <- function(Prob = c(1),Prior = c(1),means,vars)
     force(i)
     function(X)
     { 
-      res <- log(Prob[i] * Prior[i])
+      res <- Prob[i] * Prior[i]
       l <- length(X)
       chisl <- exp(
         (-1/2)*(
           t(X-as.vector(means[,i])) %*% solve(vars[[i]]) %*% (X-as.vector(means[,i]))
         )
       )
-      res = chisl/((2*pi) * det(vars[[i]])^(1/2))
+      res <- res * chisl/((2*pi) * det(vars[[i]])^(1/2))
       
       return(res)
     }
