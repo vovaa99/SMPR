@@ -213,7 +213,8 @@ Cлучай, когда разделяющей кривой является **�
 ## [Линейный дискриминант Фишера - ЛДФ](./LDF/)
 Линейный дискриминант Фишера похож на подстановочный алгоритм, но имеет отличие в том, что мы предполагаем равенство ковариационных матриц, тогда алгоритм классификации примет вид:
 
-![](./LDF/classificator.gif)
+![](./LDF/classificatorя.gif)
+
 где
 ![](./LDF/mu.png)
 ![](./LDF/sum.png)
@@ -223,36 +224,65 @@ Cлучай, когда разделяющей кривой является **�
 
 ### Реализация на языке R
 ```r
-getFunc <- function(sigma1, mu1, mu2) {
-  d1 <- det(sigma1)
-  invs1 <- solve(sigma1)
+  n <- dim(means)[1]
+  funcs <- list()
   
-  b <- invs1 %*% t(mu1 - mu2)
-  
-  D <- b[1, 1] # x
-  E <- b[2, 1] # y
-  mu <- (mu1 + mu2)
-  G <- c(mu %*% b) / 2
-  
-  func <- function(x) {
-    -x*D/E + G/E
+  makefunc <- function(i) {
+    force(i)
+    function(X)
+    { 
+      res <- log(Prob[i] * Prior[i])
+      l <- length(X)
+      a <- 
+        (-1/2)*(
+          t(as.vector(means[,i])) %*% solve(vars) %*% (as.vector(means[,i]))
+        
+      )
+      b <- 
+        t(as.vector(means[,i])) %*% solve(vars) %*%  (X)
+        
+      res <- res + a + b
+      
+      return(res)
+    }
+  }
+  for(i in seq(n))
+  {
+    funcs[[i]] <- makefunc(i)
   }
   
-  return(func)
+  solvingFunc <- function(X)
+  {
+    results <- vector()
+    for (i in seq(n))
+    {
+      results[i] <- funcs[[i]](X)
+    }
+    
+    return(which.max(results))
+  }
+  return(solvingFunc)
 }
+mu1 <- matrix(c(mean(xy1[,1]),mean(xy1[,2])),1,2)
+mu2 <- matrix(c(mean(xy2[,1]),mean(xy2[,2])),1,2)
 
-func <- getFunc(sigma1, mu1, sigma2, mu2)
+sigma1 <- var(xy1)
+sigma2 <- var(xy2)
+
+means<-matrix(c(mu1,mu2),length(mu1),2)
+vars<-list()
+vars[[1]]<-sigma1
+vars[[2]]<-sigma2
+
+LDFClassificator <- getLDFClassificator(rep(1,length(sigma1)),rep(2,length(sigma1)),means = means, vars = sigma1)
 xy <- c(x,y)
-p <- func(xy)
-if(p[1])
-{
-  points(xy[1],xy[2], col=colors[1])
-}
-else
-{
-  points(xy[1],xy[2],pch=21, col=colors[2])
-}
+
+#возвращает номер класса согласно переданных мат.ожиданий и дисперсий.
+LDFClassificator(xy) 
+
 ```
 
-### Пример разделяющей прямой
+### Пример разделяющей прямой и карты классификации
 ![](./LDF/curve.png)
+
+![](./LDF/LDFclassificationMap.png)
