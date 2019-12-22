@@ -29,28 +29,27 @@ getLDFClassificator <- function(Prob = c(1),Prior = c(1),means,vars)
     force(i)
     function(X)
     { 
-      #res <- log(Prob[i] * Prior[i])
-      #l <- length(X)
-      #a <- 
-        #(-1/2)*(
-          #t(as.vector(means[,i])) %*% solve(vars) %*% (as.vector(means[,i]))
+      res <- log(Prob[i] * Prior[i])
+      l <- length(X)
+      a <- 
+        (-1/2)*(
+          t(as.vector(means[,i])) %*% solve(vars) %*% (as.vector(means[,i]))
         
-#      )
- #    b <- 
-  #      t(as.vector(means[,i])) %*% solve(vars) %*%  (X)
+      )
+     b <- 
+        t(as.vector(means[,i])) %*% solve(vars) %*%  (X)
       #print(b)
         
-   #   res <- res + a + b
+      res <- res + a + b
       
-      res <- Prob[i] * Prior[i]
-      l <- length(X)
-      chisl <- exp(
-        (-1/2)*(
-          t(X-as.vector(means[,i])) %*% solve(vars) %*% (X-as.vector(means[,i]))
-        )
-      )
-      res <- res * chisl/((2*pi) * det(vars)^(1/2))
-      
+      #res <- Prob[i] * Prior[i]
+      #l <- length(X)
+      #chisl <- exp(
+      #  (-1/2)*(
+      #    t(X-as.vector(means[,i])) %*% solve(vars) %*% (X-as.vector(means[,i]))
+     #   )
+      #)
+      #res <- res * chisl/((2*pi) * det(vars)^(1/2))
       
       return(res)
     }
@@ -73,7 +72,6 @@ getLDFClassificator <- function(Prob = c(1),Prior = c(1),means,vars)
   return(solvingFunc)
 }
 
-
 getRisk <- function(mu1, mu2, sigma) {
   mah <- (mu1 - mu2) %*% solve(sigma) %*% t(mu1 - mu2)
   mah <- mah * -0.5
@@ -85,9 +83,9 @@ gausian <- function(x, M, D){
 }
 
 n <- 300
-sigma1 <- matrix(c(15,0, 0, 10), 2, 2)
+sigma1 <- matrix(c(5,0, 0, 5), 2, 2)
 
-mu1 <- c(10,15)
+mu1 <- c(5,20)
 mu2 <- c(15, 15)
 
 xy1 <- mvrnorm(n=n, mu = mu1, Sigma = sigma1)
@@ -129,13 +127,12 @@ while(i <= maxx)
   while(j <= maxy)
   {
     xy <- c(i,j)
-    points(xy[1],xy[2], col=colors[LDFClassificator(xy)])
+    #points(xy[1],xy[2], col=colors[LDFClassificator(xy)])
     
     j <- j+ystep
   }
   i <- i+xstep
 }
-
 
 risk <- getRisk(m1, m2, sigma1)
 text(plotxmin,plotymin-1, sprintf("risk = %s", risk), adj = c( 0, -1 ), col = "blue" )
