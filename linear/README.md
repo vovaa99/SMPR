@@ -10,6 +10,66 @@
 
 применяется **метод стохастического градиента**. В этом методе сначала выбирается начальное приближение для *w* (инициализируется небольшими случайными значениями *w = (-1/2n, 1/2n)*, где *n* -- число признаков *x*), затем запускается итерационный процесс, на каждом шаге которого вектор *w* сдвигается в направлении, противоположном направлению вектора градиента ![](https://latex.codecogs.com/gif.latex?Q%27%28w%2C%20X%5El%29).
 
+### Реализация метода стохастического градиента на языке R
+```r
+stgrad <- function(xl, eta = 1, lambda = 1/6, eps = 1e-7, loss, upd, ...) {
+  l <- dim(xl)[1]
+  n <- dim(xl)[2] - 1
+  w <- rep(0.5, n)
+  
+  Q <- 0
+  Qprev <- Q
+  
+  # Начальное значение Q
+  for (i in seq(l)) {
+    xi <- xl[i, 1:n]
+    yi <- xl[i, n+1]
+    
+    Q <- Q + loss(xi, yi, w)
+  }
+  
+  iter <- 0
+  repeat {
+    #ограничение количества повторов
+    iter <- iter + 1
+    if (iter > 10000) {
+      break
+    }
+    
+    mis <- array(dim = l)
+    for (i in seq(l)) {
+      xi <- xl[i, 1:n]
+      yi <- xl[i, n + 1]
+      
+      mis[i] <- crossprod(w, xi) * yi
+    }
+    
+    errorIndexes <- which(mis <= 0)
+    if (length(errorIndexes) == 0) {
+      break
+    }
+    
+    i <- sample(errorIndexes, 1)
+    xi <- xl[i, 1:n]
+    yi <- xl[i, n + 1]
+    
+    ex <- loss(xi, yi, w)
+    
+    w <- upd(xi, yi, w, eta)
+    
+    Q <- (1 - lambda) * Q + lambda * ex
+    
+    if (abs(Q - Qprev) < eps) {
+      break
+    }
+    Qprev <- Q
+    
+    #drawLine(w, ...)
+  }
+  
+  return(w)
+}
+```
 
 ## ADALINE
 ADALINE (адаптивны линейный элемент) -- линейный алгоритм классификации. 
@@ -17,6 +77,32 @@ ADALINE (адаптивны линейный элемент) -- линейный
 Обучение ADALINE заключается в подборе "наилучших" значений вектора весов w. Какие значение весов лучше определяет функционал потерь. В ADALINE используется функционал, предложенный Видроу и Хоффом,![](https://latex.codecogs.com/gif.latex?L%28a%2Cx%29%3D%28a-y%29%5E2). Таким образом необходимо минимизировать функционал ![](https://latex.codecogs.com/gif.latex?L%28a%2Cx%29%3DQ%28w%29) - ![](https://latex.codecogs.com/gif.latex?Q%28w%29%20%3D%20%5Csum_%7Bi%3D1%7D%5E%7Bm%7D%28a%28x_i%2Cw%29-y_i%29%5E2%5Crightarrow%20min_w).
 
 Для минимизации Q(w) будем использовать метод стохастического градиентного спуска.
+
+
+### Реализация на языке R
+```r
+ 
+# Квадратичная функция потерь для ADALINE
+adaLoss <- function(xi, yi, w) {
+  mi <- c(t(w) %*% xi) * yi
+  l <- (mi - 1)^2
+  return(l)
+}
+# дельта правило обновления для ADALINE
+adaUpd <- function(xi, yi, w, eta) {
+  wx <- c(t(w)%*% xi)
+  #ld <- 2 * (wx - yi) * xi
+  ld <- (wx - yi) * xi
+  nextW <- w - eta * ld
+  return(nextW)
+}
+
+```
+
+
+### Визуализация гиперплоскости
+
+![](./adaline/curve.png)
 
 ## Правило Хебба
 
