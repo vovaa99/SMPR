@@ -36,8 +36,8 @@ getLDFClassificator <- function(Prob = c(1),Prior = c(1),means,vars)
           t(as.vector(means[,i])) %*% solve(vars) %*% (as.vector(means[,i]))
         
       )
-     b <- 
-        t(as.vector(means[,i])) %*% solve(vars) %*%  (X)
+      b <- 
+        t(X) %*% solve(vars) %*%  (as.vector(means[,i]))
       #print(b)
         
       res <- res + a + b
