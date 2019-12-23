@@ -1,6 +1,17 @@
 library("MASS")
-options(digits=22)
+options(digits=5)
 colors <- c("green", "red")
+normalizeDataMiniMax <- function(x) {
+  n <- dim(x)[1]
+  m <- dim(x)[2]
+  res <- matrix(NA, n, m)
+  for (i in seq(m)) {
+    minVal <- min(x[,i])
+    maxVal <- max(x[,i])
+    res[,i] <- (x[,i] - minVal)/(maxVal - minVal)
+  }
+  return(res)
+}
 getFunc <- function(sigma1, mu1, mu2) {
   d1 <- det(sigma1)
   invs1 <- solve(sigma1)
@@ -34,10 +45,8 @@ getLDFClassificator <- function(Prob = c(1),Prior = c(1),means,vars)
       a <- 
         (-1/2)*(
           t(as.vector(means[,i])) %*% solve(vars) %*% (as.vector(means[,i]))
-        
       )
-      b <- 
-        t(X) %*% solve(vars) %*%  (as.vector(means[,i]))
+      b <- t(X) %*% solve(vars) %*%  (as.vector(means[,i]))
       #print(b)
         
       res <- res + a + b
@@ -45,9 +54,9 @@ getLDFClassificator <- function(Prob = c(1),Prior = c(1),means,vars)
       #res <- Prob[i] * Prior[i]
       #l <- length(X)
       #chisl <- exp(
-      #  (-1/2)*(
-      #    t(X-as.vector(means[,i])) %*% solve(vars) %*% (X-as.vector(means[,i]))
-     #   )
+        #(-1/2)*(
+          #t(X-as.vector(means[,i])) %*% solve(vars) %*% (X-as.vector(means[,i]))
+        #)
       #)
       #res <- res * chisl/((2*pi) * det(vars)^(1/2))
       
@@ -83,13 +92,17 @@ gausian <- function(x, M, D){
 }
 
 n <- 300
-sigma1 <- matrix(c(5,0, 0, 5), 2, 2)
+sigma1 <- matrix(c(15,0, 0, 3), 2, 2)
 
-mu1 <- c(5,20)
-mu2 <- c(15, 15)
+mu1 <- c(1,5)
+mu2 <- c(10, 10)
 
 xy1 <- mvrnorm(n=n, mu = mu1, Sigma = sigma1)
 xy2 <- mvrnorm(n=n, mu = mu2, Sigma = sigma1)
+#xy1 <- normalizeDataMiniMax(xy1)
+#xy2 <- normalizeDataMiniMax(xy2)
+
+#xyl <- normalizeDataMiniMax(list(cbind(xy1,1),cbind(xy2,2)))
 
 plotxmin <- min(xy1[,1], xy2[,1]) - 1
 plotymin <- min(xy1[,2], xy2[,2]) - 1
@@ -127,7 +140,7 @@ while(i <= maxx)
   while(j <= maxy)
   {
     xy <- c(i,j)
-    #points(xy[1],xy[2], col=colors[LDFClassificator(xy)])
+    points(xy[1],xy[2], col=colors[LDFClassificator(xy)])
     
     j <- j+ystep
   }
@@ -135,5 +148,4 @@ while(i <= maxx)
 }
 
 risk <- getRisk(m1, m2, sigma1)
-text(plotxmin,plotymin-1, sprintf("risk = %s", risk), adj = c( 0, -1 ), col = "blue" )
-
+text(plotxmin,plotymin, sprintf("risk = %s%%", format(round(risk*100, 5), nsmall = 5)), adj = c( 0, -1 ), col = "blue" )

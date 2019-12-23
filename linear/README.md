@@ -97,12 +97,44 @@ adaUpd <- function(xi, yi, w, eta) {
   return(nextW)
 }
 
+getADALINEClassificator <- function(dat)
+{
+  resAda <- stgrad(dat, loss = adaLoss, upd = adaUpd)
+  drawLine(resAda, lwd = 2, col = 'red', xmin = plotxmin, xmax = plotxmax)
+  getValue <- function(x) {
+    sigmoid <- function(z) {
+      return (1 / (1 + exp(-z)))
+    }
+    return ( sigmoid(c(crossprod(resAda, c(x[1], x[2], -1))) * -1) - sigmoid(c(crossprod(resAda, c(x[1], x[2], -1))) * 1) )
+  }
+  
+  solvingFunc <- function(X)
+  {
+    pp <- getValue(X)
+    if (pp > 0) 
+    {
+      return(1)
+    }
+    else 
+    {
+      return(2)
+    }
+  }
+  return(solvingFunc)
+}
+adalineClassificator <- getADALINEClassificator(dat)
+## возвращае номер класса
+classnum <- adalineClassificator(X)
 ```
 
 
 ### Визуализация гиперплоскости
 
 ![](./adaline/curve.png)
+
+### Карта класификации
+
+![](./adaline/classificationMap.png)
 
 ## Правило Хебба
 

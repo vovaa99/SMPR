@@ -1,4 +1,4 @@
-source("..\\common_linear.r")
+#source("..\\common_linear.r")
 
 # Квадратичная функция потерь для ADALINE
 adaLoss <- function(xi, yi, w) {
@@ -14,6 +14,32 @@ adaUpd <- function(xi, yi, w, eta) {
   nextW <- w - eta * ld
   return(nextW)
 }
+
+getADALINEClassificator <- function(dat)
+{
+  resAda <- stgrad(dat, loss = adaLoss, upd = adaUpd)
+  getValue <- function(x) {
+    sigmoid <- function(z) {
+      return (1 / (1 + exp(-z)))
+    }
+    return ( sigmoid(c(crossprod(resAda, c(x[1], x[2], -1))) * -1) - sigmoid(c(crossprod(resAda, c(x[1], x[2], -1))) * 1) )
+  }
+  
+  solvingFunc <- function(X)
+  {
+    pp <- getValue(X)
+    if (pp > 0) 
+    {
+      return(1)
+    }
+    else 
+    {
+      return(2)
+    }
+  }
+  return(solvingFunc)
+}
+
 n <- 100
 m <- 100
 
@@ -45,24 +71,12 @@ points(dat, pch=21, col=colors[ifelse(dat[,4] == -1, 1, 2)], bg=colors[ifelse(da
 #adaline
 resAda <- stgrad(dat, loss = adaLoss, upd = adaUpd)
 drawLine(resAda, lwd = 2, col = 'red', xmin = plotxmin, xmax = plotxmax)
+adalineClassificator <- getADALINEClassificator(dat)
 
-#w <- resAda
-#prob <- function(x, y, w) {
-#  sigmoid <- function(z) {
-#    return (1 / (1 + exp(-z)))
-#  }
-#  return ( sigmoid(c(crossprod(w, c(x, y, -1))) * -1) - sigmoid(c(crossprod(w, c(x, y, -1))) * 1) )
-#}
-
-#library(plotrix)
-#for (i in seq(len=50, from = plotxmin, to = plotxmax)) {
-#for (j in seq(len=50, from = plotymin, to = plotymax)) {
-#pp <- prob(i, j, w)
-#if (pp < 0) {
-#ca <- adjustcolor(colors[2], alpha.f = -pp)
-#} else {
-#ca <- adjustcolor(colors[1], alpha.f = pp)
-#}
-#draw.circle(i, j, radius = 0.005, col = ca, border = ca)
-#}
-#}
+library(plotrix)
+for (i in seq(len=50, from = plotxmin, to = plotxmax)) {
+  for (j in seq(len=50, from = plotymin, to = plotymax)) {
+    classnum <- adalineClassificator(c(i,j))
+      draw.circle(i, j, radius = 0.005, col = colors[classnum], border = colors[classnum])
+    }
+  }
