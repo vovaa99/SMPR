@@ -17,7 +17,8 @@ adaUpd <- function(xi, yi, w, eta) {
 
 getADALINEClassificator <- function(dat)
 {
-  resAda <- stgrad(dat, loss = adaLoss, upd = adaUpd)
+  resAda <- stgrad(dat, loss = adaLoss, upd = adaUpd, lwd = 1, col = 'lightgreen', xmin = plotxmin, xmax = plotxmax)
+  drawLine(resAda, xmin = plotxmin, xmax = plotxmax, lwd = 2, col = 'red')
   getValue <- function(x) {
     sigmoid <- function(z) {
       return (1 / (1 + exp(-z)))
@@ -43,18 +44,18 @@ getADALINEClassificator <- function(dat)
 n <- 100
 m <- 100
 
-sigma1 <- matrix(c(5, 0, 0, 1), 2, 2)
+sigma1 <- matrix(c(1, 0, 0, 1), 2, 2)
 sigma2 <- matrix(c(1, 0, 0, 5), 2, 2)
 
-mu1 <- c(0, 1)
-mu2 <- c(10, 5)
+mu1 <- c(10, 1)
+mu2 <- c(10, 7)
 
-xc1 <- mvrnorm(n=n, mu = mu1, Sigma = sigma1)
-xc2 <- mvrnorm(n=m, mu = mu2, Sigma = sigma2)
+#xc1 <- mvrnorm(n=n, mu = mu1, Sigma = sigma1)
+#xc2 <- mvrnorm(n=m, mu = mu2, Sigma = sigma2)
 
 dat <- rbind(xc1, xc2)
-dat <- normalizeDataMiniMax(dat)
-#dat <- normalizeDataZScaling(dat)
+#dat <- normalizeDataMiniMax(dat)
+dat <- normalizeDataZScaling(dat)
 # random wj
 dat <- cbind(dat, rep(-1, n+m))
 # classes
@@ -69,14 +70,14 @@ plot(NULL, type="n", xlab = "x", ylab = "y", xlim=c(plotxmin, plotxmax), ylim = 
 points(dat, pch=21, col=colors[ifelse(dat[,4] == -1, 1, 2)], bg=colors[ifelse(dat[,4] == -1, 1, 2)])
 
 #adaline
-resAda <- stgrad(dat, loss = adaLoss, upd = adaUpd)
-drawLine(resAda, lwd = 2, col = 'red', xmin = plotxmin, xmax = plotxmax)
+#resAda <- stgrad(dat, loss = adaLoss, upd = adaUpd)
+#drawLine(resAda, lwd = 2, col = 'red', xmin = plotxmin, xmax = plotxmax)
 adalineClassificator <- getADALINEClassificator(dat)
 
-library(plotrix)
-for (i in seq(len=50, from = plotxmin, to = plotxmax)) {
-  for (j in seq(len=50, from = plotymin, to = plotymax)) {
-    classnum <- adalineClassificator(c(i,j))
-      draw.circle(i, j, radius = 0.005, col = colors[classnum], border = colors[classnum])
-    }
-  }
+#library(plotrix)
+#for (i in seq(len=50, from = plotxmin, to = plotxmax)) {
+  #for (j in seq(len=50, from = plotymin, to = plotymax)) {
+    #classnum <- adalineClassificator(c(i,j))
+      #draw.circle(i, j, radius = 0.005, col = 0, border = colors[classnum])
+    #}
+  #}

@@ -132,9 +132,13 @@ classnum <- adalineClassificator(X)
 
 ![](./adaline/curve.png)
 
+### Процесс обучения
+
+![](./adaline/learningProcess.png)
+
 ### Карта класификации
 
-![](./adaline/classificationMap.png)
+![](./adaline/classifmap.png)
 
 ## Правило Хебба
 

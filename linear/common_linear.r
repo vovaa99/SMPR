@@ -35,7 +35,7 @@ drawLine <- function(w, xmin = -2, xmax = -2, ...) {
 }
 
 ## Стохастический градиент
-stgrad <- function(xl, eta = 1, lambda = 1/6, eps = 1e-7, loss, upd, ...) {
+stgrad <- function(xl, eta = 1, lambda = 1/6, eps = 1e-5, loss, upd, ...) {
   l <- dim(xl)[1]
   n <- dim(xl)[2] - 1
   w <- rep(0.5, n)
@@ -55,7 +55,7 @@ stgrad <- function(xl, eta = 1, lambda = 1/6, eps = 1e-7, loss, upd, ...) {
   repeat {
     #ограничение количества повторов
     iter <- iter + 1
-    if (iter > 10000) {
+    if (iter > 100) {
       break
     }
     
