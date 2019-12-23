@@ -284,5 +284,5 @@ LDFClassificator(xy)
 
 ![](./LDF/LDFclassificationMap.png)
 
-![](./LDF/risk.png)
+![](./LDF/risk1.png)
 
