@@ -142,4 +142,66 @@ classnum <- adalineClassificator(X)
 
 ## Правило Хебба
 
+
+### Реализация на языке R
+```r
+# Кусочно-линейную функцию потерь для Хебба
+hebbLoss <- function(xi, yi, w) {
+  mi <- c(crossprod(w, xi)) * yi
+  return (max(-mi, 0))
+}
+# правило Хебба для весов
+hebbUpd <- function(xi, yi, w, eta) {
+  nextW <- w + eta * yi * xi
+  return (nextW)
+}
+
+getHEBBClassificator <- function(dat)
+{
+  resHEBB <- stgrad(dat, loss = hebbLoss, upd = hebbUpd, lwd = 1, col = 'lightgreen', xmin = plotxmin, xmax = plotxmax)
+  drawLine(resHEBB, xmin = plotxmin, xmax = plotxmax, lwd = 2, col = 'red')
+  getValue <- function(x) {
+    sigmoid <- function(z) {
+      return (1 / (1 + exp(-z)))
+    }
+    return ( sigmoid(c(crossprod(resHEBB, c(x[1], x[2], -1))) * -1) - sigmoid(c(crossprod(resHEBB, c(x[1], x[2], -1))) * 1) )
+  }
+  
+  solvingFunc <- function(X)
+  {
+    pp <- getValue(X)
+    if (pp > 0) 
+    {
+      return(1)
+    }
+    else 
+    {
+      return(2)
+    }
+  }
+  return(solvingFunc)
+}
+HEBBClassificator <- getHEBBClassificator(dat)
+## возвращае номер класса
+classnum <- adalineClassificator(X)
+```
+### Пример 1
+### Процесс обучения
+
+![](./hebb/learningProcess1.png)
+
+### Карта класификации
+
+![](./hebb/classificationMap1.png)
+
+### Пример 2
+### Процесс обучения
+
+![](./hebb/learningProcess2.png)
+
+### Карта класификации
+
+![](./hebb/classificationMap2.png)
+
+
 ## Логистическая регрессия
