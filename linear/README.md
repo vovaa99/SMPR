@@ -138,7 +138,7 @@ classnum <- adalineClassificator(X)
 
 ### Карта класификации
 
-![](./adaline/classifmap.png)
+![](./adaline/classificationMap.png)
 
 ## Правило Хебба
 
